@@ -1,0 +1,6 @@
+{
+  "disabledMcpServers": [
+    "playwright",
+    "supabase"
+  ]
+}
