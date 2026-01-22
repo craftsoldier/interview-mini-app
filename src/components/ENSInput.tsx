@@ -30,13 +30,7 @@ export const ENSInput = forwardRef<HTMLInputElement, ENSInputProps>(
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
-        className={`
-          flex-1 px-4 py-3 border border-gray-300 rounded-lg
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-          disabled:bg-gray-100 disabled:cursor-not-allowed
-          text-base text-gray-900 bg-white
-          ${className}
-        `.trim()}
+        className={`retro-input w-full ${className}`.trim()}
         aria-label="ENS name input"
       />
     )

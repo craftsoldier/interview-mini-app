@@ -2,26 +2,536 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import retro fonts - VT323 for terminal text, Share Tech Mono for addresses, IBM Plex Mono for headers */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=VT323&family=Share+Tech+Mono&display=swap');
+
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* Retro color palette - black, white, and Ethereum blue */
+  --retro-black: #0a0a0a;
+  --retro-dark: #111111;
+  --retro-gray-dark: #1a1a1a;
+  --retro-gray: #2a2a2a;
+  --retro-gray-light: #3a3a3a;
+  --retro-white: #f0f0f0;
+  --retro-white-dim: #b0b0b0;
+  --retro-white-muted: #707070;
+
+  /* Ethereum blue variations */
+  --eth-blue: #627EEA;
+  --eth-blue-bright: #8299FF;
+  --eth-blue-dim: #4A5FC1;
+  --eth-blue-glow: rgba(98, 126, 234, 0.5);
+
+  /* Accent colors for status */
+  --retro-green: #00ff00;
+  --retro-red: #ff3333;
+  --retro-yellow: #ffff00;
+
+  /* Border style */
+  --border-chunky: 3px solid var(--eth-blue);
+  --border-thin: 1px solid var(--retro-gray-light);
+  --border-pixel: 2px solid var(--retro-white);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+* {
+  box-sizing: border-box;
+  image-rendering: pixelated;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: 'VT323', monospace;
+  background: var(--retro-black);
+  color: var(--retro-white);
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+/* Retro background with subtle grid pattern */
+.retro-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(0deg, transparent 24%, var(--retro-gray-dark) 25%, var(--retro-gray-dark) 26%, transparent 27%, transparent 74%, var(--retro-gray-dark) 75%, var(--retro-gray-dark) 76%, transparent 77%),
+    linear-gradient(90deg, transparent 24%, var(--retro-gray-dark) 25%, var(--retro-gray-dark) 26%, transparent 27%, transparent 74%, var(--retro-gray-dark) 75%, var(--retro-gray-dark) 76%, transparent 77%);
+  background-size: 50px 50px;
+  background-color: var(--retro-black);
+}
+
+/* CRT scanline effect */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* CRT flicker effect */
+.crt-flicker {
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+/* Retro title styling */
+.pixel-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 0 var(--eth-blue-dim);
+}
+
+/* Terminal text styling */
+.terminal-text {
+  font-family: 'VT323', monospace;
+  letter-spacing: 1px;
+}
+
+/* Monospace address text */
+.mono-text {
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* Retro card with chunky border */
+.retro-card {
+  background: var(--retro-dark);
+  border: 3px solid var(--eth-blue);
+  box-shadow:
+    6px 6px 0 var(--retro-black),
+    inset 0 0 20px rgba(98, 126, 234, 0.05);
+  transition: all 0.1s ease;
+}
+
+.retro-card:hover {
+  box-shadow:
+    8px 8px 0 var(--retro-black),
+    inset 0 0 30px rgba(98, 126, 234, 0.1);
+  transform: translate(-2px, -2px);
+}
+
+/* Retro card header bar - like old windows */
+.retro-card-header {
+  background: linear-gradient(90deg, var(--eth-blue) 0%, var(--eth-blue-dim) 100%);
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--retro-black);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.retro-card-header::before {
+  content: '■ ■ ■';
+  font-size: 8px;
+  letter-spacing: 4px;
+  color: var(--retro-white);
+  opacity: 0.7;
+}
+
+.retro-card-header-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--retro-white);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Retro input with pixel border */
+.retro-input {
+  background: var(--retro-black);
+  border: 3px solid var(--retro-gray-light);
+  color: var(--retro-white);
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  padding: 12px 16px;
+  transition: all 0.1s ease;
+  outline: none;
+}
+
+.retro-input:focus {
+  border-color: var(--eth-blue);
+  box-shadow:
+    0 0 0 2px var(--eth-blue-glow),
+    inset 0 0 10px rgba(98, 126, 234, 0.1);
+}
+
+.retro-input::placeholder {
+  color: var(--retro-white-muted);
+}
+
+.retro-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Retro button */
+.retro-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--eth-blue);
+  color: var(--retro-white);
+  border: 3px solid var(--eth-blue-bright);
+  border-bottom-color: var(--eth-blue-dim);
+  border-right-color: var(--eth-blue-dim);
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.05s ease;
+  box-shadow: 4px 4px 0 var(--retro-black);
+}
+
+.retro-btn:hover {
+  background: var(--eth-blue-bright);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--retro-black);
+}
+
+.retro-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--retro-black);
+  border-top-color: var(--eth-blue-dim);
+  border-left-color: var(--eth-blue-dim);
+  border-bottom-color: var(--eth-blue-bright);
+  border-right-color: var(--eth-blue-bright);
+}
+
+.retro-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary button - outline style */
+.retro-btn-secondary {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--eth-blue);
+  border: 2px solid var(--eth-blue);
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.retro-btn-secondary:hover {
+  background: var(--eth-blue);
+  color: var(--retro-white);
+  box-shadow: 0 0 10px var(--eth-blue-glow);
+}
+
+/* Quick try buttons */
+.quick-try {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 2px solid var(--retro-gray-light);
+  color: var(--retro-white-dim);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.quick-try:hover {
+  border-color: var(--eth-blue);
+  color: var(--eth-blue);
+  text-shadow: 0 0 8px var(--eth-blue-glow);
+}
+
+.quick-try:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tags / Badges */
+.retro-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 10px;
+  border: 2px solid;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.retro-tag-success {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: var(--retro-green);
+  color: var(--retro-green);
+}
+
+.retro-tag-info {
+  background: rgba(98, 126, 234, 0.1);
+  border-color: var(--eth-blue);
+  color: var(--eth-blue);
+}
+
+.retro-tag-warning {
+  background: rgba(255, 51, 51, 0.1);
+  border-color: var(--retro-red);
+  color: var(--retro-red);
+}
+
+/* Info rows */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--retro-gray-light);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: var(--retro-white-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.info-value {
+  color: var(--retro-white);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Copy button */
+.copy-btn {
+  padding: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--retro-white-muted);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.copy-btn:hover {
+  color: var(--eth-blue);
+  border-color: var(--eth-blue);
+}
+
+.copy-btn:active {
+  transform: scale(0.9);
+}
+
+/* Links */
+.retro-link {
+  color: var(--eth-blue);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--eth-blue);
+  transition: all 0.1s ease;
+}
+
+.retro-link:hover {
+  color: var(--eth-blue-bright);
+  text-shadow: 0 0 8px var(--eth-blue-glow);
+}
+
+/* Link cards */
+.link-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--retro-gray-dark);
+  border: 2px solid var(--retro-gray);
+  color: var(--retro-white);
+  text-decoration: none;
+  transition: all 0.1s ease;
+}
+
+.link-card:hover {
+  border-color: var(--eth-blue);
+  background: var(--retro-gray);
+  box-shadow: 0 0 15px rgba(98, 126, 234, 0.2);
+}
+
+/* Loading spinner - retro style */
+.retro-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--retro-gray);
+  border-top-color: var(--eth-blue);
+  animation: spin 1s steps(8) infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Blinking cursor effect */
+.blink {
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Fade in animations */
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+  opacity: 0;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.3s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* Navigation bar */
+.retro-nav {
+  background: var(--retro-dark);
+  border-bottom: 3px solid var(--eth-blue);
+  padding: 0;
+}
+
+.nav-item {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--retro-white-dim);
+  text-decoration: none;
+  padding: 12px 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-right: 1px solid var(--retro-gray);
+  transition: all 0.1s ease;
+}
+
+.nav-item:hover {
+  background: var(--retro-gray);
+  color: var(--eth-blue-bright);
+}
+
+.nav-item.active {
+  background: var(--eth-blue);
+  color: var(--retro-white);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--retro-black);
+  border: 1px solid var(--retro-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--retro-gray);
+  border: 2px solid var(--retro-black);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--eth-blue);
+}
+
+/* Selection styling */
+::selection {
+  background: var(--eth-blue);
+  color: var(--retro-white);
+}
+
+/* Metadata grid */
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* ASCII art decorations */
+.ascii-border-top::before {
+  content: '╔════════════════════════════════════════════════════════════╗';
+  display: block;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--eth-blue);
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ascii-border-bottom::after {
+  content: '╚════════════════════════════════════════════════════════════╝';
+  display: block;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--eth-blue);
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Ethereum icon glow */
+.eth-glow {
+  filter: drop-shadow(0 0 6px var(--eth-blue-glow));
+}
+
+/* Text glow effect */
+.text-glow {
+  text-shadow: 0 0 10px var(--eth-blue-glow);
+}
+
+/* Pixelated avatar placeholder */
+.pixel-avatar {
+  background: linear-gradient(135deg, var(--eth-blue) 0%, var(--eth-blue-dim) 100%);
+  border: 3px solid var(--eth-blue-bright);
+  image-rendering: pixelated;
 }

@@ -1,11 +1,20 @@
 // hooks/useENSResolver.ts
 import { useState, useCallback } from 'react'
 import { resolveENSName } from '@/lib/ens'
-import { ENSResolutionResult } from '@/types/ens'
+import { ENSProfile, ENSTextRecords } from '@/types/ens'
 import { validateENSName } from '@/lib/validation'
 
+const defaultTextRecords: ENSTextRecords = {
+  avatar: null,
+  description: null,
+  url: null,
+  twitter: null,
+  github: null,
+  email: null
+}
+
 export function useENSResolver() {
-  const [result, setResult] = useState<ENSResolutionResult | null>(null)
+  const [result, setResult] = useState<ENSProfile | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,7 +34,17 @@ export function useENSResolver() {
     setIsLoading(true)
     try {
       const resolutionResult = await resolveENSName(ensName)
-      setResult(resolutionResult)
+
+      // Create ENSProfile from resolution result, including text records if available
+      const profile: ENSProfile = {
+        address: resolutionResult.address,
+        ensName: resolutionResult.ensName,
+        isValid: resolutionResult.isValid,
+        error: resolutionResult.error,
+        textRecords: (resolutionResult as ENSProfile).textRecords || defaultTextRecords
+      }
+
+      setResult(profile)
 
       if (!resolutionResult.isValid) {
         setError(resolutionResult.error || 'Failed to resolve ENS name')
@@ -43,11 +62,30 @@ export function useENSResolver() {
     setIsLoading(false)
   }, [])
 
+  // Extract text records for convenient access
+  const textRecords = result?.textRecords || null
+  const avatar = textRecords?.avatar || null
+  const description = textRecords?.description || null
+  const url = textRecords?.url || null
+  const twitter = textRecords?.twitter || null
+  const github = textRecords?.github || null
+  const email = textRecords?.email || null
+
   return {
+    // Core resolution result
     result,
     isLoading,
     error,
     resolve,
-    reset
+    reset,
+    // Text records (grouped)
+    textRecords,
+    // Individual text record fields for convenient access
+    avatar,
+    description,
+    url,
+    twitter,
+    github,
+    email
   }
 }

@@ -46,6 +46,30 @@ const EthereumIcon = () => (
   </svg>
 )
 
+const TwitterIcon = () => (
+  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+)
+
+const GitHubIcon = () => (
+  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+  </svg>
+)
+
+const EmailIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+  </svg>
+)
+
+const LinkIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+  </svg>
+)
+
 export function ENSResolver({ initialName }: ENSResolverProps) {
   const [inputValue, setInputValue] = useState(initialName || '')
   const [copiedField, setCopiedField] = useState<string | null>(null)
@@ -199,15 +223,45 @@ export function ENSResolver({ initialName }: ENSResolverProps) {
             </div>
 
             <div className="flex flex-col md:flex-row items-center gap-6">
-              {/* Pixel Avatar */}
-              <div className="w-20 h-20 pixel-avatar flex items-center justify-center">
-                <span className="pixel-title text-2xl text-[var(--retro-white)]">
-                  {result.ensName.charAt(0).toUpperCase()}
-                </span>
-              </div>
+              {/* Avatar - show actual image if available, otherwise fallback to letter */}
+              {result.textRecords?.avatar ? (
+                <div className="w-20 h-20 pixel-avatar overflow-hidden flex items-center justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={result.textRecords.avatar.startsWith('ipfs://')
+                      ? `https://ipfs.io/ipfs/${result.textRecords.avatar.replace('ipfs://', '')}`
+                      : result.textRecords.avatar}
+                    alt={`${result.ensName} avatar`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to letter on error
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const parent = target.parentElement
+                      if (parent) {
+                        const fallback = document.createElement('span')
+                        fallback.className = 'pixel-title text-2xl text-[var(--retro-white)]'
+                        fallback.textContent = result.ensName.charAt(0).toUpperCase()
+                        parent.appendChild(fallback)
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="w-20 h-20 pixel-avatar flex items-center justify-center">
+                  <span className="pixel-title text-2xl text-[var(--retro-white)]">
+                    {result.ensName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
 
               <div className="flex-1 text-center md:text-left">
-                <h2 className="pixel-title text-xl text-[var(--retro-white)] mb-3">{result.ensName}</h2>
+                <h2 className="pixel-title text-xl text-[var(--retro-white)] mb-2">{result.ensName}</h2>
+                {result.textRecords?.description && (
+                  <p className="terminal-text text-[var(--retro-white-dim)] mb-3 text-sm max-w-md">
+                    {result.textRecords.description}
+                  </p>
+                )}
                 <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
                   <span className="retro-tag retro-tag-success">
                     <span className="w-2 h-2 bg-[var(--retro-green)]" />
@@ -382,6 +436,82 @@ export function ENSResolver({ initialName }: ENSResolverProps) {
                 </div>
               </div>
             </div>
+
+            {/* Social & Contact Card - only show if any records exist */}
+            {(result.textRecords?.twitter || result.textRecords?.github || result.textRecords?.email || result.textRecords?.url) && (
+              <div className="retro-card fade-in-up delay-500">
+                <div className="retro-card-header">
+                  <span className="retro-card-header-title">Social & Links</span>
+                </div>
+                <div className="p-5 space-y-3">
+                  {result.textRecords?.twitter && (
+                    <a
+                      href={`https://twitter.com/${result.textRecords.twitter.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-card"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-[#000000] border-2 border-[var(--retro-gray)] flex items-center justify-center text-white">
+                          <TwitterIcon />
+                        </div>
+                        <span className="terminal-text">@{result.textRecords.twitter.replace('@', '')}</span>
+                      </div>
+                      <ExternalLinkIcon />
+                    </a>
+                  )}
+
+                  {result.textRecords?.github && (
+                    <a
+                      href={`https://github.com/${result.textRecords.github}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-card"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-[#24292e] border-2 border-[var(--retro-gray)] flex items-center justify-center text-white">
+                          <GitHubIcon />
+                        </div>
+                        <span className="terminal-text">{result.textRecords.github}</span>
+                      </div>
+                      <ExternalLinkIcon />
+                    </a>
+                  )}
+
+                  {result.textRecords?.url && (
+                    <a
+                      href={result.textRecords.url.startsWith('http') ? result.textRecords.url : `https://${result.textRecords.url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-card"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-[var(--eth-blue)] border-2 border-[var(--retro-gray)] flex items-center justify-center text-white">
+                          <LinkIcon />
+                        </div>
+                        <span className="terminal-text truncate max-w-[200px]">{result.textRecords.url.replace(/^https?:\/\//, '')}</span>
+                      </div>
+                      <ExternalLinkIcon />
+                    </a>
+                  )}
+
+                  {result.textRecords?.email && (
+                    <a
+                      href={`mailto:${result.textRecords.email}`}
+                      className="link-card"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-[#ea4335] border-2 border-[var(--retro-gray)] flex items-center justify-center text-white">
+                          <EmailIcon />
+                        </div>
+                        <span className="terminal-text">{result.textRecords.email}</span>
+                      </div>
+                      <ExternalLinkIcon />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

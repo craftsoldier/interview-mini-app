@@ -8,6 +8,24 @@ interface AddressDisplayProps {
   ensName: string
 }
 
+const CopyIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+)
+
+const ExternalLinkIcon = () => (
+  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+  </svg>
+)
+
 export function AddressDisplay({ address, ensName }: AddressDisplayProps) {
   const [copied, setCopied] = useState(false)
 
@@ -21,37 +39,52 @@ export function AddressDisplay({ address, ensName }: AddressDisplayProps) {
     }
   }
 
+  const truncateAddress = (addr: string) => {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`
+  }
+
   return (
-    <div className="p-6 bg-green-50 rounded-lg border border-green-200">
-      <div className="mb-4">
-        <h2 className="text-sm font-semibold text-green-900 mb-1">ENS Name</h2>
-        <p className="font-mono text-lg text-green-800">{ensName}</p>
+    <>
+      {/* Name row */}
+      <div className="info-row">
+        <span className="info-label">Name</span>
+        <span className="info-value mono-text">{ensName}</span>
       </div>
 
-      <div className="mb-4">
-        <h2 className="text-sm font-semibold text-green-900 mb-1">Resolved Address</h2>
+      {/* ETH Address row */}
+      <div className="info-row">
+        <span className="info-label">ETH</span>
         <div className="flex items-center gap-2">
-          <p className="font-mono text-sm break-all text-green-800 flex-1">{address}</p>
+          <span className="info-value text-[var(--eth-blue)] text-glow mono-text">
+            {truncateAddress(address)}
+          </span>
           <button
             onClick={handleCopy}
-            className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors whitespace-nowrap"
+            className="copy-btn"
+            title={copied ? 'Copied!' : 'Copy address'}
           >
-            {copied ? 'Copied!' : 'Copy'}
+            {copied ? (
+              <span className="text-[var(--retro-green)]"><CheckIcon /></span>
+            ) : (
+              <CopyIcon />
+            )}
           </button>
         </div>
       </div>
 
-      <a
-        href={`https://etherscan.io/address/${address}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium inline-flex items-center gap-1"
-      >
-        View on Etherscan
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
-    </div>
+      {/* Etherscan link row */}
+      <div className="info-row">
+        <span className="info-label">Explorer</span>
+        <a
+          href={`https://etherscan.io/address/${address}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="retro-link inline-flex items-center gap-1 terminal-text"
+        >
+          Etherscan
+          <ExternalLinkIcon />
+        </a>
+      </div>
+    </>
   )
 }
