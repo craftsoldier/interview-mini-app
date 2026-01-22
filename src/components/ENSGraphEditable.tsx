@@ -84,25 +84,29 @@ export function ENSGraphEditable() {
   }
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>
+    return (
+      <div className="flex items-center justify-center h-full">
+        <span className="terminal-text text-[var(--eth-blue)] text-lg">LOADING<span className="blink">_</span></span>
+      </div>
+    )
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       {/* Sidebar */}
-      <div className="w-80 p-4 border-r bg-gray-50 overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">ENS Social Graph</h2>
+      <div className="w-80 p-4 border-r-2 border-[var(--retro-gray)] bg-[var(--retro-dark)] overflow-y-auto">
+        <h2 className="pixel-title text-lg text-[var(--eth-blue)] mb-4">&gt; SOCIAL GRAPH</h2>
 
         {/* Add Edge Form */}
         <div className="mb-6">
-          <h3 className="font-semibold mb-2">Add Connection</h3>
+          <h3 className="terminal-text text-[var(--retro-green)] mb-2 text-sm">ADD CONNECTION</h3>
           <form onSubmit={handleAddEdge} className="space-y-2">
             <input
               type="text"
               value={sourceInput}
               onChange={e => setSourceInput(e.target.value)}
               placeholder="vitalik.eth"
-              className="w-full px-3 py-2 border rounded text-sm"
+              className="w-full px-3 py-2 bg-[var(--retro-darker)] border-2 border-[var(--retro-gray)] text-[var(--retro-white)] text-sm font-mono focus:border-[var(--eth-blue)] focus:outline-none"
               disabled={isAdding}
             />
             <input
@@ -110,60 +114,60 @@ export function ENSGraphEditable() {
               value={targetInput}
               onChange={e => setTargetInput(e.target.value)}
               placeholder="balajis.eth"
-              className="w-full px-3 py-2 border rounded text-sm"
+              className="w-full px-3 py-2 bg-[var(--retro-darker)] border-2 border-[var(--retro-gray)] text-[var(--retro-white)] text-sm font-mono focus:border-[var(--eth-blue)] focus:outline-none"
               disabled={isAdding}
             />
             <button
               type="submit"
               disabled={isAdding || !sourceInput || !targetInput}
-              className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+              className="w-full py-2 bg-[var(--retro-green)] text-[var(--retro-darker)] font-bold text-sm hover:brightness-110 disabled:opacity-50 transition-all"
             >
-              {isAdding ? 'Adding...' : 'Add Edge'}
+              {isAdding ? 'ADDING...' : '+ ADD EDGE'}
             </button>
           </form>
           {formError && (
-            <p className="mt-2 text-sm text-red-600">{formError}</p>
+            <p className="mt-2 text-sm text-[var(--retro-pink)]">{formError}</p>
           )}
         </div>
 
         {/* Delete Edge */}
         {selectedEdge && (
-          <div className="mb-6 p-3 bg-red-50 rounded">
-            <h3 className="font-semibold mb-2">Delete Connection</h3>
-            <p className="text-sm mb-2">
-              {selectedEdge.source} - {selectedEdge.target}
+          <div className="mb-6 p-3 border-2 border-[var(--retro-pink)] bg-[var(--retro-darker)]">
+            <h3 className="terminal-text text-[var(--retro-pink)] mb-2 text-sm">DELETE CONNECTION</h3>
+            <p className="text-sm mb-2 text-[var(--retro-white)] font-mono">
+              {selectedEdge.source} ↔ {selectedEdge.target}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={handleDeleteEdge}
-                className="flex-1 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                className="flex-1 py-2 bg-[var(--retro-pink)] text-[var(--retro-darker)] font-bold text-sm hover:brightness-110"
               >
-                Delete
+                DELETE
               </button>
               <button
                 onClick={() => setSelectedEdge(null)}
-                className="flex-1 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm"
+                className="flex-1 py-2 border-2 border-[var(--retro-gray)] text-[var(--retro-white-dim)] text-sm hover:border-[var(--retro-white)]"
               >
-                Cancel
+                CANCEL
               </button>
             </div>
           </div>
         )}
 
         {/* Stats */}
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-[var(--retro-white-dim)] font-mono">
           <p>{graphData.nodes.length} nodes</p>
           <p>{graphData.links.length} edges</p>
         </div>
 
         {/* Instructions */}
-        <div className="mt-6 text-xs text-gray-500">
-          <p className="mb-1"><strong>Click node</strong>: View profile</p>
-          <p><strong>Click edge</strong>: Select to delete</p>
+        <div className="mt-6 text-xs text-[var(--retro-white-muted)] font-mono">
+          <p className="mb-1"><span className="text-[var(--eth-blue)]">CLICK NODE</span>: View profile</p>
+          <p><span className="text-[var(--eth-blue)]">CLICK EDGE</span>: Select to delete</p>
         </div>
 
         {error && (
-          <p className="mt-4 text-sm text-red-600">{error}</p>
+          <p className="mt-4 text-sm text-[var(--retro-pink)]">{error}</p>
         )}
       </div>
 
@@ -183,25 +187,25 @@ export function ENSGraphEditable() {
               ctx.arc(node.x!, node.y!, 6, 0, 2 * Math.PI)
               ctx.fillStyle = '#3b82f6'
               ctx.fill()
-              ctx.font = `${fontSize}px sans-serif`
+              ctx.font = `${fontSize}px monospace`
               ctx.textAlign = 'center'
-              ctx.fillStyle = '#1f2937'
-              ctx.fillText(label, node.x!, node.y! + 12)
+              ctx.fillStyle = '#00ffff'
+              ctx.fillText(label, node.x!, node.y! + 14)
             }}
             linkColor={(link: any) => {
               // Highlight selected edge
               if (selectedEdge && link.id === selectedEdge.id) {
-                return '#ef4444'
+                return '#ff6b9d'
               }
-              return '#9ca3af'
+              return '#4a5568'
             }}
             linkWidth={(link: any) => {
               return selectedEdge && link.id === selectedEdge.id ? 3 : 1
             }}
           />
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            Add connections to build the graph
+          <div className="flex items-center justify-center h-full">
+            <span className="terminal-text text-[var(--retro-white-muted)]">&gt; Add connections to build the graph</span>
           </div>
         )}
       </div>
