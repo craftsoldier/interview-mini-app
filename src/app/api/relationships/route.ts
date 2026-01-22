@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { validateENSName } from '@/lib/validation'
 
 // GET - Fetch all relationships
 export async function GET() {
@@ -17,13 +18,41 @@ export async function GET() {
 
 // POST - Add a new relationship
 export async function POST(request: NextRequest) {
-  const body = await request.json()
+  // Parse JSON body with error handling
+  let body
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json(
+      { error: 'Invalid JSON body' },
+      { status: 400 }
+    )
+  }
+
   const { source_ens, target_ens } = body
 
-  // Validate input
+  // Validate required fields
   if (!source_ens || !target_ens) {
     return NextResponse.json(
       { error: 'source_ens and target_ens are required' },
+      { status: 400 }
+    )
+  }
+
+  // Validate ENS name format
+  const sourceValidation = validateENSName(source_ens)
+  const targetValidation = validateENSName(target_ens)
+
+  if (!sourceValidation.isValid) {
+    return NextResponse.json(
+      { error: `Invalid source ENS name: ${sourceValidation.error}` },
+      { status: 400 }
+    )
+  }
+
+  if (!targetValidation.isValid) {
+    return NextResponse.json(
+      { error: `Invalid target ENS name: ${targetValidation.error}` },
       { status: 400 }
     )
   }
