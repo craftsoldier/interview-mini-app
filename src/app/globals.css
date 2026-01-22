@@ -535,3 +535,29 @@ body {
   border: 3px solid var(--eth-blue-bright);
   image-rendering: pixelated;
 }
+
+/* Mobile responsive styles */
+@media (max-width: 640px) {
+  /* Hide status indicator on mobile */
+  .retro-nav .border-l-2 {
+    display: none;
+  }
+
+  /* Stack footer vertically */
+  footer > div {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  /* Hide ASCII decorations on mobile */
+  .ascii-border-top::before,
+  .ascii-border-bottom::after {
+    display: none;
+  }
+
+  /* Smaller nav padding */
+  .nav-item {
+    padding: 12px 12px;
+  }
+}
