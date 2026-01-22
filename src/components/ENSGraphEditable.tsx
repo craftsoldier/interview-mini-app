@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useRelationships } from '@/hooks/useRelationships'
@@ -10,6 +10,24 @@ const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false 
 export function ENSGraphEditable() {
   const router = useRouter()
   const graphRef = useRef<any>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
+
+  // Track container size
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight
+        })
+      }
+    }
+
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
+    return () => window.removeEventListener('resize', updateDimensions)
+  }, [])
 
   // Database-backed relationships
   const {
@@ -92,9 +110,9 @@ export function ENSGraphEditable() {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full overflow-hidden">
       {/* Sidebar */}
-      <div className="w-80 p-4 border-r-2 border-[var(--retro-gray)] bg-[var(--retro-dark)] overflow-y-auto">
+      <div className="w-80 shrink-0 p-4 border-r-2 border-[var(--retro-gray)] bg-[var(--retro-dark)] overflow-y-auto">
         <h2 className="pixel-title text-lg text-[var(--eth-blue)] mb-4">&gt; SOCIAL GRAPH</h2>
 
         {/* Add Edge Form */}
@@ -172,11 +190,13 @@ export function ENSGraphEditable() {
       </div>
 
       {/* Graph */}
-      <div className="flex-1 relative">
+      <div ref={containerRef} className="flex-1 relative overflow-hidden">
         {graphData.nodes.length > 0 ? (
           <ForceGraph2D
             ref={graphRef}
             graphData={graphData}
+            width={dimensions.width}
+            height={dimensions.height}
             nodeLabel="id"
             onNodeClick={handleNodeClick}
             onLinkClick={handleLinkClick}
