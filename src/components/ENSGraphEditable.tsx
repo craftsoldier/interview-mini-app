@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useRelationships } from '@/hooks/useRelationships'
+import { resolveENSName } from '@/lib/ens'
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false })
 
@@ -57,13 +58,32 @@ export function ENSGraphEditable() {
     const source = sourceInput.trim().toLowerCase()
     const target = targetInput.trim().toLowerCase()
 
-    // Basic validation
+    // Basic format validation
     if (!source.includes('.') || !target.includes('.')) {
       setFormError('Both must be valid ENS names (e.g., vitalik.eth)')
       return
     }
 
     setIsAdding(true)
+
+    // Validate both ENS names resolve on Ethereum
+    const [sourceResult, targetResult] = await Promise.all([
+      resolveENSName(source),
+      resolveENSName(target)
+    ])
+
+    if (!sourceResult.isValid) {
+      setFormError(`"${source}" is not a registered ENS name`)
+      setIsAdding(false)
+      return
+    }
+
+    if (!targetResult.isValid) {
+      setFormError(`"${target}" is not a registered ENS name`)
+      setIsAdding(false)
+      return
+    }
+
     const result = await addRelationship(source, target)
     setIsAdding(false)
 
